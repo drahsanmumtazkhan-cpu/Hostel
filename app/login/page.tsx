@@ -7,12 +7,10 @@ import toast, { Toaster } from 'react-hot-toast';
 export default function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [message, setMessage] = useState('');
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setMessage('');
     const res = await fetch('/api/auth', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -22,47 +20,55 @@ export default function LoginPage() {
     if (res.ok) {
       toast.success('Login successful!');
       localStorage.setItem('user', JSON.stringify(data.user));
-      setTimeout(() => router.replace('/hostels'), 700);
+      // Redirect based on role
+      const redirectPath = data.user.role === 'student' ? '/student' : 
+                          data.user.role === 'warden' ? '/warden' : '/hostels';
+      setTimeout(() => router.replace(redirectPath), 700);
     } else {
       toast.error(data.error || 'Login failed');
     }
   };
 
   return (
-    <div style={{ maxWidth: 400, margin: '2rem auto', fontFamily: 'sans-serif' }}>
-      <Toaster position="top-center"/>
-      <h2 style={{ textAlign: 'center', marginBottom: 24 }}>Login</h2>
-      <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        <input
-          type="text"
-          placeholder="Username"
-          value={username}
-          onChange={e => setUsername(e.target.value)}
-          required
-          style={{ padding: 8, borderRadius: 6, border: '1px solid #ccc' }}
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          required
-          style={{ padding: 8, borderRadius: 6, border: '1px solid #ccc' }}
-        />
-        <button type="submit" style={{
-          padding: '10px 0',
-          borderRadius: 6,
-          background: 'linear-gradient(90deg, #6366f1, #60a5fa)',
-          color: 'white',
-          fontWeight: 600,
-          border: 'none',
-          fontSize: 16,
-          cursor: 'pointer',
-          marginTop: 8
-        }}>Login</button>
-      </form>
-      <div style={{ marginTop: 18, textAlign: 'center' }}>
-        <a href="/signup" style={{ color: '#2563eb', textDecoration: 'underline' }}>Don't have an account? Sign up</a>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+      <Toaster position="top-center" />
+      <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
+        <h2 className="text-3xl font-bold text-center text-black mb-6">Welcome Back</h2>
+        <form onSubmit={handleLogin} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-black mb-1">Username</label>
+            <input
+              type="text"
+              placeholder="Enter your username"
+              value={username}
+              onChange={e => setUsername(e.target.value)}
+              required
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition text-black"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-black mb-1">Password</label>
+            <input
+              type="password"
+              placeholder="Enter your password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              required
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition text-black"
+            />
+          </div>
+          <button 
+            type="submit" 
+            className="w-full py-3 bg-gradient-to-r from-indigo-600 to-blue-600 text-white font-semibold rounded-lg shadow-md hover:from-indigo-700 hover:to-blue-700 transition transform hover:scale-105"
+          >
+            Login
+          </button>
+        </form>
+        <div className="mt-6 text-center">
+          <a href="/signup" className="text-indigo-600 hover:text-indigo-800 font-medium">
+            Don't have an account? Sign up
+          </a>
+        </div>
       </div>
     </div>
   );
